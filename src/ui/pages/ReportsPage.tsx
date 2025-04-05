@@ -145,7 +145,7 @@ const ReportsPage = () => {
         const maxToxicity = calculateMaxToxicity(result.results)
         if (maxToxicity > 70) {
           // Threshold for toxic content
-          toxicSelectors.add(sentences[index].selector + `.toxic-text`)
+          toxicSelectors.add(sentences[index].selector)
         } else {
           nonToxicSelectors.add(sentences[index].selector + `.not-toxic-text`)
         }
@@ -164,58 +164,79 @@ const ReportsPage = () => {
             chrome.scripting.executeScript(
               {
                 target: { tabId: activeTab.id },
-                func: (blurIntensity, isBlurEnabled, toxicSelectors, nonToxicSelectors) => {
-                  console.log("Executing script...");
-                  console.log("Blur Intensity:", blurIntensity);
-                  console.log("Is Blur Enabled:", isBlurEnabled);
-                  console.log("Toxic Selectors:", toxicSelectors);
-                  console.log("Non-Toxic Selectors:", nonToxicSelectors);
-            
+                func: (
+                  blurIntensity,
+                  isBlurEnabled,
+                  toxicSelectors,
+                  nonToxicSelectors
+                ) => {
+                  console.log("Executing script...")
+                  console.log("Blur Intensity:", blurIntensity)
+                  console.log("Is Blur Enabled:", isBlurEnabled)
+                  console.log("Toxic Selectors:", toxicSelectors)
+                  console.log("Non-Toxic Selectors:", nonToxicSelectors)
+
                   // Step 1: Clean up existing classes
-                  console.log("Cleaning up existing classes...");
-                  document.querySelectorAll(".toxic-text, .not-toxic-text").forEach((el) => {
-                    el.classList.remove("toxic-text", "not-toxic-text");
-                    el.style.filter = ""; // Remove blur effect
-                  });
-            
+                  console.log("Cleaning up existing classes...")
+                  document
+                    .querySelectorAll(".toxic-text, .not-toxic-text")
+                    .forEach((el) => {
+                      el.classList.remove("toxic-text", "not-toxic-text")
+                      el.style.filter = "" // Remove blur effect
+                    })
+
                   // Step 2: Apply `toxic-text` class and blur effect
-                  console.log("Applying `toxic-text` class and blur effect...");
+                  console.log("Applying `toxic-text` class and blur effect...")
+                  // In the executeScript function, update the element handling:
                   toxicSelectors.forEach((selector) => {
-                    const elements = document.querySelectorAll(selector);
+                    const elements = document.querySelectorAll(selector)
                     elements.forEach((el) => {
-                      if (el && el.classList) {
-                        console.log("Marking element as toxic:", el);
-                        el.classList.add("toxic-text");
-                        if (isBlurEnabled) {
-                          el.style.filter = `blur(${blurIntensity}px)`;
-                          el.style.transition = "filter 0.3s ease";
-                        }
+                      if (el) {
+                        // Create a wrapper div if needed
+                        const wrapper = document.createElement("div")
+                        wrapper.className = "toxic-text"
+                        wrapper.style.filter = isBlurEnabled
+                          ? `blur(${blurIntensity}px)`
+                          : "none"
+                        wrapper.style.transition = "filter 0.3s ease"
+
+                        // Wrap the element
+                        el.parentNode.insertBefore(wrapper, el)
+                        wrapper.appendChild(el)
                       }
-                    });
-                  });
-            
+                    })
+                  })
+
                   // Step 3: Apply `not-toxic-text` class (no blur)
-                  console.log("Applying `not-toxic-text` class...");
+                  console.log("Applying `not-toxic-text` class...")
                   nonToxicSelectors.forEach((selector) => {
-                    const elements = document.querySelectorAll(selector);
+                    const elements = document.querySelectorAll(selector)
                     elements.forEach((el) => {
                       if (el && el.classList) {
-                        console.log("Marking element as not-toxic:", el);
-                        el.classList.add("not-toxic-text");
+                        console.log("Marking element as not-toxic:", el)
+                        el.classList.add("not-toxic-text")
                       }
-                    });
-                  });
+                    })
+                  })
                 },
-                args: [blurIntensity, isBlurEnabled, Array.from(toxicSelectors), Array.from(nonToxicSelectors)],
+                args: [
+                  blurIntensity,
+                  isBlurEnabled,
+                  Array.from(toxicSelectors),
+                  Array.from(nonToxicSelectors)
+                ]
               },
               (result) => {
                 if (chrome.runtime.lastError) {
-                  console.error("Script execution failed:", chrome.runtime.lastError);
+                  console.error(
+                    "Script execution failed:",
+                    chrome.runtime.lastError
+                  )
                 } else {
-                  console.log("Script executed successfully");
+                  console.log("Script executed successfully")
                 }
               }
-            );
+            )
           }
         })
 
@@ -503,6 +524,19 @@ const ReportsPage = () => {
               report.timestamp || new Date().toISOString()
             ).toLocaleString()}
           </div>
+          <h3 className="text-lg font-semibold text-gray-700">
+            Visualizations (%)
+          </h3>
+          <div className="charts-container">
+            <div>
+              <h4 className="chart-title">Toxicity Scores</h4>
+              <canvas ref={barChartRef} width="380" height="200"></canvas>
+            </div>
+            <div>
+              <h4 className="chart-title">Toxicity Distribution</h4>
+              <canvas ref={pieChartRef} width="380" height="200"></canvas>
+            </div>
+          </div>
 
           <h3 className="text-lg font-semibold text-gray-700">
             Toxicity Scores (%)
@@ -531,18 +565,6 @@ const ReportsPage = () => {
               ))}
             </tbody>
           </table>
-
-          <h3 className="text-lg font-semibold text-gray-700">
-            Visualizations (%)
-          </h3>
-          <div className="charts-container">
-            <div>
-              <canvas ref={barChartRef}></canvas>
-            </div>
-            <div>
-              <canvas ref={pieChartRef}></canvas>
-            </div>
-          </div>
         </div>
       ) : (
         <div className="no-toxicity">

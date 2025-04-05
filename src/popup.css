@@ -441,23 +441,66 @@ body {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 1.5rem;
+  font-size: 0.8125rem; /* Slightly smaller font for extension */
+  background-color: #1e1e1e; /* Dark background for extension */
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .toxicity-table th,
 .toxicity-table td {
-  padding: 0.75rem;
+  padding: 0.5rem 0.75rem; /* Slightly tighter padding */
   text-align: left;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #3a3a3a; /* Darker border for dark theme */
 }
 
 .toxicity-table th {
-  background-color: #f3f4f6;
+  background-color: #2d2d2d; /* Dark header */
   font-weight: 600;
-  color: #2a2a2a;
+  color: #ffffff; /* White text for headers */
+  position: sticky;
+  top: 0;
 }
 
 .toxicity-table td {
-  color: #eeeeee;
+  color: #e0e0e0; /* Light gray for text */
+  vertical-align: top; /* Align content to top */
+}
+
+/* Zebra striping for better readability */
+.toxicity-table tr:nth-child(even) {
+  background-color: #252525;
+}
+
+/* Hover effect for rows */
+.toxicity-table tr:hover {
+  background-color: #333333;
+}
+
+/* Make the first column wider for sentences */
+.toxicity-table td:first-child {
+  width: 40%;
+  word-break: break-word; /* Prevent long text from overflowing */
+}
+
+/* Style for the nested list of scores */
+.toxicity-table td ul {
+  margin: 0;
+  padding-left: 0;
+  list-style-type: none;
+}
+
+.toxicity-table td li {
+  margin-bottom: 0.25rem;
+}
+
+/* Highlight high toxicity scores */
+.toxicity-table td li[data-score^="7"],
+.toxicity-table td li[data-score^="8"],
+.toxicity-table td li[data-score^="9"],
+.toxicity-table td li[data-score^="10"] {
+  color: #ff6b6b; /* Red color for high toxicity */
+  font-weight: 500;
 }
 
 /* Charts Container */
@@ -543,6 +586,57 @@ body {
   border-radius: 0.375rem;
   color: #16a34a;
   font-weight: 600;
+}
+
+/* Charts Container */
+.charts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+/* Individual Chart Wrapper */
+.charts-container > div {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 0.75rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Chart Titles */
+.chart-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.75rem;
+  text-align: center;
+  padding: 0.25rem 0;
+}
+
+/* Canvas Elements */
+.charts-container canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 200px;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 380px) {
+  .charts-container > div {
+    padding: 0.5rem;
+  }
+  
+  .chart-title {
+    font-size: 0.8125rem;
+  }
+  
+  .charts-container canvas {
+    max-height: 180px;
+  }
 }
 
 
